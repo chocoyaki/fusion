@@ -11,7 +11,7 @@ from HTMLParser import HTMLParser
 import logging
 from execo import logger
 
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 #FYI Balise signalant une chanson
@@ -19,7 +19,7 @@ balise = '<span class="song_title">'
 site="mp3juices.com"
 class search(HTMLParser):
     
-    def __init__(self,artist,title):
+    def __init__(self,artist,title,destination_path = "./"):
         HTMLParser.__init__(self)
         self.nb_results = 0
         self.current_counter = 0 #Indicate that a valid result is under process
@@ -31,6 +31,7 @@ class search(HTMLParser):
         self.artist = artist
         self.title = title
         self.files = []
+        self.destination_path = destination_path
         
     def __enter__(self):
         return self
@@ -47,8 +48,10 @@ class search(HTMLParser):
         self.exclude_list = ["remix","mix","rmx"]
         self.data = "" # Contains the name of the song as found on the page
         self.naming = 'keep_original' # Set the naming policies of downloaded files
+        
         artist = self.artist
         title = self.title
+        destination_path = self.destination_path 
         
         logger.info("Starting the "+site+" parser")
         logger.debug("Retrieving the song informations")
@@ -71,8 +74,11 @@ class search(HTMLParser):
         logger.debug("Server Answer = %r %r",r1.status,r1.reason)
         data1 = r1.read()
         logger.debug("Parsing the results page for results")
-        parser = search(artist,title)
+        parser = search(artist,title,destination_path)
         parser.feed(data1)
+        
+        #No need to create a new item. The current object can call himself to perform the parsing
+        #self.feed(data1)
         
         logger.debug("Closing the connexion")
         conn.close()
@@ -82,11 +88,11 @@ class search(HTMLParser):
         return parser.nb_results
     
     def handle_starttag(self, tag, attrs):
-        logger.debug("Encountered a start tag: %s",tag)
+        #logger.debug("Encountered a start tag: %s",tag)
         if "input" in tag and self.current_counter > 0 and self.nb_results <= self.max_results:
             logger.debug("Encountered a start tag: %s",tag)        
             # ww8 / ww9 can be used to detect the downloading URL
-            if "mp3juices.com/download/" in attrs[2][1] and "url" in attrs[1][1]:
+            if ("ww8" in attrs[2][1] or "ww9" in attrs[2][1]) and "url" in attrs[1][1]:
                 url = attrs[2][1]
                 logger.debug("URL of the song")
                 logger.debug(url)
@@ -94,11 +100,16 @@ class search(HTMLParser):
                 
                 logger.debug("Protecting the address with double quotes")
                 url = '"'+url+'"'
-                os.system("wget "+url+" -O "+"XY")
+                
+                try:
+                    os.mkdir(self.destination_path)
+                except OSError:
+                    logger.info("The folder %s already exists",self.destination_path)
+                os.system("wget "+url+" -O "+"XY ")
                 if 'keep_original' not in self.naming: # We make a choice between the original name of the file or the search terms
-                    os.rename("XY",self.artist.title()+" - "+self.title.title()+".mp3")
+                    os.rename("XY",self.destination_path+"/"+self.artist.title()+" - "+self.title.title()+".mp3")
                 else:
-                    os.rename("XY",self.data.title()+".mp3")
+                    os.rename("XY",self.destination_path+"/"+self.data.title()+".mp3")
                 
                 return
             
