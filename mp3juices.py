@@ -46,9 +46,9 @@ class mp3juices(HTMLParser):
                 url = '"'+url+'"'
                 os.system("wget "+url+" -O "+"XY")
                 if 'keep_original' not in self.naming: # We make a choice between the original name of the file or the search terms
-                    os.rename("XY",artist+" - "+title+".mp3")
+                    os.rename("XY",artist.title()+" - "+title.title()+".mp3")
                 else:
-                    os.rename("XY",self.data+".mp3")
+                    os.rename("XY",self.data.title()+".mp3")
                 
                 return
             
