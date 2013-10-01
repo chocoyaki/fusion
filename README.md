@@ -7,6 +7,10 @@ fusion
 
 Usage
 
-./mp3juices.py "artist" "title"
+mp3juices.py
+
+* import mp3juices
+* dl = mp3juices.search("Estelle","American boy")
+* dl.download()
 
 ./watchdog.py
