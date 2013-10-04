@@ -25,7 +25,7 @@ class search(HTMLParser):
         self.current_counter = 0 #Indicate that a valid result is under process
         self.bitrate = 256 #Indicate the minimum bitrate to tolerate
         self.max_results = 1 #Maximum of results to download
-        self.exclude_list = ["remix","mix","rmx"]
+        self.exclude_list = ["remix","mix","rmx","dj"]
         self.data = "" # Contains the name of the song as found on the page
         self.naming = 'keep_original' # Set the naming policies of downloaded files
         self.artist = artist
@@ -106,7 +106,7 @@ class search(HTMLParser):
                 except OSError:
                     logger.info("The folder %s already exists",self.destination_path)
                 os.system("wget "+url+" -O "+"XY ")
-                if 'keep_original' not in self.naming: # We make a choice between the original name of the file or the search terms
+                if 'keep_original' in self.naming: # We make a choice between the original name of the file or the search terms
                     os.rename("XY",self.destination_path+"/"+self.artist.title()+" - "+self.title.title()+".mp3")
                 else:
                     os.rename("XY",self.destination_path+"/"+self.data.title()+".mp3")

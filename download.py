@@ -23,6 +23,11 @@ logger.setLevel(logging.INFO)
 
 import mp3juices
 
+def strip_accents(s):
+    s = s.decode('unicode-escape')
+    return ''.join(c for c in unicodedata.normalize('NFD', s)
+                  if unicodedata.category(c) != 'Mn')
+   
 # create a subclass and override the handler methods
 def safe_unicode(obj, *args):
     """ return the unicode representation of obj """
@@ -53,6 +58,8 @@ def setAsDownloaded(element):
 
 def replacements(string):
         string.replace("&","and")
+        s = strip_accents(string)
+        return s
 
 class xmldownload():
     
@@ -102,14 +109,16 @@ for item in os.listdir(target_folder):
                     if nb_res > 0:
                         logger.info("Win!")
                         setAsDownloaded(child)
+                        logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
                         dl_cpt +=1
                     else:
                         logger.info("Loss!")
-                    total+=1        
+                    total+=1
+            tree.write(xml_file)  
 logger.info("[%s] %d / %d new songs were found and downloaded!",genre,dl_cpt,total)
 logger.info("%d valid XML files!",cpt_files)
 
-tree.write(xml_file)        
+        
 
 
 os.chdir(source_folder)
