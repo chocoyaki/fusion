@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import SubElement
 from xml.dom import minidom
 import datetime
+from time import sleep
 
 import logging
 from execo import logger
@@ -111,6 +112,7 @@ for item in os.listdir(target_folder):
                         setAsDownloaded(child)
                         logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
                         dl_cpt +=1
+                        sleep(2)                        
                     else:
                         logger.info("Loss!")
                     total+=1
