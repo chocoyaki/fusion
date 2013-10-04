@@ -105,11 +105,11 @@ class search(HTMLParser):
                     os.mkdir(self.destination_path)
                 except OSError:
                     logger.info("The folder %s already exists",self.destination_path)
-                os.system("wget "+url+" -O "+"XY ")
+                os.system("wget "+url+" -O "+self.destination_path+"/"+"XY ")
                 if 'keep_original' in self.naming: # We make a choice between the original name of the file or the search terms
-                    os.rename("XY",self.destination_path+"/"+self.artist.title()+" - "+self.title.title()+".mp3")
+                    os.rename(self.destination_path+"/"+"XY",self.destination_path+"/"+self.artist.title()+" - "+self.title.title()+".mp3")
                 else:
-                    os.rename("XY",self.destination_path+"/"+self.data.title()+".mp3")
+                    os.rename(self.destination_path+"/"+"XY",self.destination_path+"/"+self.data.title()+".mp3")
                 
                 return
             
