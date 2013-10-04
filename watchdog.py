@@ -103,14 +103,14 @@ class UsenParser(HTMLParser):
     # The information about the song is after that tag
     # Pattern = Title / Song
     
-    def __init__ (self,genre, channels = UsenChannels()):
+    def __init__ (self,genre, destination_folder = "./",channels = UsenChannels()):
         HTMLParser.__init__(self)
         #self.page = page
         self.website = "Usen Music"
         self.recording = 0
         self.data = []
         self.genre = genre
-        self.file = genre+".xml"
+        self.file = destination_folder+genre+".xml"
         self.new_entries = 0
         
         self.channel_list = channels
@@ -122,7 +122,7 @@ class UsenParser(HTMLParser):
                 self.tree = ET.parse(self.file)
                 self.song_list = self.tree.getroot()
         except IOError:
-            print "Oh dear. "+filename+" doesn't exist. A new file will be created",filename
+            print "Oh dear. "+genre+".xml doesn't exist. A new file will be created",filename
             new_file = open(filename,"w")
             new_file.write(new_content)
             new_file.close()
@@ -154,8 +154,8 @@ class UsenParser(HTMLParser):
         return self.channel_list.channel_list[genre][1]
         
         
-    def write(self):
-        self.tree.write(genre+".xml")
+    def write(self,destination_folder = "./"):
+        self.tree.write(destination_folder+"/"+genre+".xml")
     
 #     def __init__ (self,tree):
 #         HTMLParser.__init__(self)
@@ -242,6 +242,9 @@ class UsenParser(HTMLParser):
                 self.new_entries += 1
             
 
+
+script, destination_folder = argv
+
 #http://music.usen.com/nowplay/sound-planet/?band=D&chno=63
 url_dev = "file:///home/dbalouek/dev/mp3fusion/JAZZY%20HIP%20HOP%20NOW%20PLAYING%20|%20USEN%EF%BC%88%E6%9C%89%E7%B7%9A%EF%BC%89%E9%9F%B3%E6%A5%BD%E6%94%BE%E9%80%81%20%E7%95%AA%E7%B5%84%E6%A1%88%E5%86%85%20|%20music.usen.com.html"
 
@@ -254,7 +257,7 @@ cpt_genre = 1
 for key in channels.channel_list:
     
     genre = key
-    parser = UsenParser(genre)
+    parser = UsenParser(genre,destination_folder)
     band = parser.get_band(genre)
     number = parser.get_channel(genre)
     request = '?band='+band+'&chno='+number
@@ -268,10 +271,13 @@ for key in channels.channel_list:
         page_source = browser.page_source
          
     parser.feed(page_source)
-    parser.write()
+    parser.write(destination_folder)
     
     print "["+genre+"] New songs = "+str(parser.new_entries)+" ("+str(cpt_genre)+"/"+str(len(channels.channel_list))+")"
     cpt_genre += 1
+
+print "Files are located in "+destination_folder
+ 
     #print parser.data
     #print parser.prettify(parser.song_list)
 

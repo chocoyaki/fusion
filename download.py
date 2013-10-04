@@ -84,7 +84,7 @@ for item in os.listdir(target_folder):
         tree = ET.parse(item)
         root = tree.getroot()
         genre = item.split(".")[0]
-        destination_folder = "./"+genre
+        destination_folder = "/home/ftp/Musique/fusion/"+genre
         try:
             os.mkdir(destination_folder)
         except OSError:

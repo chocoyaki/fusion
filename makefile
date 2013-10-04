@@ -10,15 +10,15 @@ install:
 	make install PREFIX=$HOME/.local
 	PYTHONHOMEPATH="$HOME/.local/"$(python -c "import sys,os; print os.sep.join(['lib', 'python' + sys.version[:3], 'site-packages'])")
 	export PYTHONPATH="$PYTHONHOMEPATH${PYTHONPATH:+:${PYTHONPATH}}"
+	cd ~/Dropbox/software_files_linux/
+	git clone git@github.com:chocoyaki/fusion.git
 
 update:
-	cd ~/Dropbox/software_files_linux/
-	git clone git@github.com:chocoyaki/fusion.git; 
-	cd fusion/
+	cd ~/Dropbox/software_files_linux/fusion/
 	git pull
 
 start:
 	cd ~/Dropbox/software_files_linux/fusion/
-	./watchdog.py
+	~/Dropbox/software_files_linux/fusion/watchdog.py "~/Dropbox/software_files_linux/fusion/"
 	ssh chocoyaki@kimchoco "cd ~/Dropbox/software_files_linux/fusion/; ./download.py"
-	date +"%m-%d-%Y %T" >> history.log
+	date +"%m-%d-%Y %T" >> ~/Dropbox/software_files_linux/fusion/history.log
