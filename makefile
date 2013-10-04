@@ -14,11 +14,10 @@ install:
 	git clone git@github.com:chocoyaki/fusion.git
 
 update:
-	cd ~/Dropbox/software_files_linux/fusion/
-	git pull
+	git --git-dir="/home/dbalouek/Dropbox/software_files_linux/fusion/.git" pull
 
 start:
 	cd ~/Dropbox/software_files_linux/fusion/
-	~/Dropbox/software_files_linux/fusion/watchdog.py "~/Dropbox/software_files_linux/fusion/"
+	~/Dropbox/software_files_linux/fusion/watchdog.py "/home/dbalouek/Dropbox/software_files_linux/fusion/"
 	ssh chocoyaki@kimchoco "cd ~/Dropbox/software_files_linux/fusion/; ./download.py"
 	date +"%m-%d-%Y %T" >> ~/Dropbox/software_files_linux/fusion/history.log
