@@ -17,8 +17,10 @@ from xml.dom import minidom
 import datetime
 from time import sleep
 
+import sys
 import logging
 from execo import logger
+import socket
 
 logger.setLevel(logging.INFO)
 
@@ -64,32 +66,33 @@ def replacements(string):
 
 class xmldownload():
     
-    def __init__(self,target_folder = "./"):
+    def __init__(self,xml_folder = "./"):
         return
 
 source_folder = os.getcwd()
 print len(sys.argv)
 
 if len(sys.argv) > 1:
-    script, target_folder = argv
+    script, xml_folder, fusion_folder = argv
 else: 
-    target_folder = "."
-os.chdir(target_folder)
+    xml_folder = "."
+    fusion_folder = "/home/ftp/Musique/fusion/"
+os.chdir(xml_folder)
 logger.info("Targer Folder = %s",os.getcwd())
 logger.info("Looking for XML files...")
 cpt_files = 0
-for item in os.listdir(target_folder):
+for item in os.listdir(xml_folder):
     if item.endswith(".xml"):
         
         xml_file = item
         tree = ET.parse(item)
         root = tree.getroot()
         genre = item.split(".")[0]
-        destination_folder = "/home/ftp/Musique/fusion/"+genre
+        xml_folder = fusion_folder+"/"+genre
         try:
-            os.mkdir(destination_folder)
+            os.mkdir(xml_folder)
         except OSError:
-            logger.info("The folder %s already exists",destination_folder)
+            logger.info("The folder %s already exists",xml_folder)
         if root.tag == genre:
             logger.debug("%s.xml is a valid file!",genre)
             cpt_files +=1
@@ -104,15 +107,23 @@ for item in os.listdir(target_folder):
                     replacements(artist)
                     replacements(titre)
                     logger.info("Song to download: %s - %s",artist,titre)
-                    dl = mp3juices.search(artist,titre,destination_folder)
-                    logger.info("destination_folder = %s",destination_folder)
-                    nb_res = dl.download()
+                    dl = mp3juices.search(artist,titre,xml_folder)
+                    logger.info("xml_folder = %s",xml_folder)
+                    
+                    #Management of timeout and socket errors
+                    try:
+                        nb_res = dl.download()
+                    except socket.error as msg:
+                        nb_res = -1
+                        continue
+                    except KeyboardInterrupt:
+                        nb_res = -1
+                        raise
                     if nb_res > 0:
                         logger.info("Win!")
                         setAsDownloaded(child)
                         logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
-                        dl_cpt +=1
-                        sleep(2)                        
+                        dl_cpt +=1                     
                     else:
                         logger.info("Loss!")
                     total+=1
