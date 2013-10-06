@@ -18,6 +18,6 @@ cd /home/dbalouek/Dropbox/software_files_linux/fusion/
 git pull
 
 cd ~/Dropbox/software_files_linux/fusion/
-./watchdog.py "/home/dbalouek/Dropbox/software_files_linux/fusion/"
+./watcher_usen.py "/home/dbalouek/Dropbox/software_files_linux/fusion/"
 ssh chocoyaki@kimchoco "cd ~/Dropbox/software_files_linux/fusion/; ./download.py"
 date +"%m-%d-%Y %T" >> ~/Dropbox/software_files_linux/fusion/history.log
