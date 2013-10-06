@@ -16,7 +16,6 @@ from xml.etree.ElementTree import SubElement
 from xml.dom import minidom
 import datetime
 from time import sleep
-
 import sys
 import logging
 from execo import logger
@@ -93,6 +92,7 @@ class thread_download(Thread):
             #cpt_files +=1
             dl_cpt=0
             total=0
+            current_cpt = 0
             for child in root:
                 if hasBeenDownloaded(child) == False:
                     total +=1
@@ -105,10 +105,11 @@ class thread_download(Thread):
                     
                     replacements(artist)
                     replacements(titre)
-                    logger.info("Song to download: %s - %s",artist,titre)
-                    logger.info("[%s] Download count : %d / %d",genre,dl_cpt,total)
+                    logger.debug("Song to download: %s - %s",artist,titre)
+                    logger.debug("Download: %d / Current: %d / Total:%d",dl_cpt,current_cpt,total)
                     dl = mp3juices.search(artist,titre,xml_folder)
-                    logger.info("xml_folder = %s",xml_folder)
+                    current_cpt += 1
+                    logger.debug("xml_folder = %s",xml_folder)
                     
                     #Management of timeout and socket errors
                     try:
@@ -125,7 +126,7 @@ class thread_download(Thread):
                         logger.info("Win!")
                         setAsDownloaded(child)
                         logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
-                        logger.info("Download count : %d / %d",dl_cpt,total)
+                        logger.info("Download: %d / Current: %d / Total:%d",dl_cpt,current_cpt,total)
                         dl_cpt +=1                     
                     else:
                         logger.info("Loss!")
@@ -156,10 +157,10 @@ for xml_file in os.listdir(xml_folder):
         current = thread_download(xml_file)
         threads.append(current)
         current.start()
-
-        
+  
 for t in threads:   
     t.join()
+    logger.info("A thread is done!")
 
 os.chdir(source_folder)
 #We got back to the folder of the script
