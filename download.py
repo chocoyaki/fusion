@@ -144,7 +144,7 @@ else:
 
 #Initialize the threads
 threads = []
-maxconnections = 10 #Maximum of parallel download
+maxconnections = 20 #Maximum of parallel download
 pool_sema = BoundedSemaphore(value=maxconnections)
 
 os.chdir(xml_folder)

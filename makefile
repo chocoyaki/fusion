@@ -14,8 +14,11 @@ if [ ! -d ~/Dropbox/software_files_linux/fusion/ ]; then
     git clone git@github.com:chocoyaki/fusion.git
 fi
 
-cd /home/dbalouek/Dropbox/software_files_linux/fusion/
-git pull
+cp -r /home/dbalouek/dev/fusion/*.py /home/dbalouek/Dropbox/software_files_linux/fusion/
+cp -r /home/dbalouek/dev/fusion/*.md /home/dbalouek/Dropbox/software_files_linux/fusion/
+cp -r /home/dbalouek/dev/fusion/makefile /home/dbalouek/Dropbox/software_files_linux/fusion/
+
+
 
 cd ~/Dropbox/software_files_linux/fusion/
 ./watcher_usen.py "/home/dbalouek/Dropbox/software_files_linux/fusion/"
