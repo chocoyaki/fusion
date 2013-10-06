@@ -22,6 +22,10 @@ import logging
 from execo import logger
 import socket
 
+import urllib
+
+from threading import Thread, BoundedSemaphore
+
 logger.setLevel(logging.INFO)
 
 import mp3juices
@@ -68,26 +72,17 @@ class xmldownload():
     
     def __init__(self,xml_folder = "./"):
         return
-
-source_folder = os.getcwd()
-print len(sys.argv)
-
-if len(sys.argv) > 1:
-    script, xml_folder, fusion_folder = argv
-else: 
-    xml_folder = "."
-    fusion_folder = "/home/ftp/Musique/fusion/"
-os.chdir(xml_folder)
-logger.info("Targer Folder = %s",os.getcwd())
-logger.info("Looking for XML files...")
-cpt_files = 0
-for item in os.listdir(xml_folder):
-    if item.endswith(".xml"):
-        
-        xml_file = item
-        tree = ET.parse(item)
+    
+class thread_download(Thread):
+    def __init__ (self,param):
+        Thread.__init__(self)
+        self.xml_file = param
+        return
+    
+    def run(self):
+        tree = ET.parse(self.xml_file)
         root = tree.getroot()
-        genre = item.split(".")[0]
+        genre = self.xml_file.split(".")[0]
         xml_folder = fusion_folder+"/"+genre
         try:
             os.mkdir(xml_folder)
@@ -95,11 +90,15 @@ for item in os.listdir(xml_folder):
             logger.info("The folder %s already exists",xml_folder)
         if root.tag == genre:
             logger.debug("%s.xml is a valid file!",genre)
-            cpt_files +=1
+            #cpt_files +=1
             dl_cpt=0
             total=0
             for child in root:
-                child_cpt = 0
+                if hasBeenDownloaded(child) == False:
+                    total +=1
+            
+            for child in root:
+                #child_cpt = 0
                 if hasBeenDownloaded(child) == False:
                     artist = safe_unicode(child[0].text).encode('utf-8')
                     titre = safe_unicode(child[1].text).encode('utf-8')
@@ -107,12 +106,15 @@ for item in os.listdir(xml_folder):
                     replacements(artist)
                     replacements(titre)
                     logger.info("Song to download: %s - %s",artist,titre)
+                    logger.info("[%s] Download count : %d / %d",genre,dl_cpt,total)
                     dl = mp3juices.search(artist,titre,xml_folder)
                     logger.info("xml_folder = %s",xml_folder)
                     
                     #Management of timeout and socket errors
                     try:
+                        pool_sema.acquire()
                         nb_res = dl.download()
+                        pool_sema.release()
                     except socket.error as msg:
                         nb_res = -1
                         continue
@@ -123,16 +125,41 @@ for item in os.listdir(xml_folder):
                         logger.info("Win!")
                         setAsDownloaded(child)
                         logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
+                        logger.info("Download count : %d / %d",dl_cpt,total)
                         dl_cpt +=1                     
                     else:
                         logger.info("Loss!")
-                    total+=1
-            tree.write(xml_file)  
-logger.info("[%s] %d / %d new songs were found and downloaded!",genre,dl_cpt,total)
-logger.info("%d valid XML files!",cpt_files)
+            tree.write(self.xml_file)
+        return
+
+source_folder = os.getcwd()
+print len(sys.argv)
+
+if len(sys.argv) > 1:
+    script, xml_folder, fusion_folder = argv
+else: 
+    xml_folder = "."
+    fusion_folder = "/home/ftp/Musique/fusion/"
+
+#Initialize the threads
+threads = []
+maxconnections = 10
+pool_sema = BoundedSemaphore(value=maxconnections)
+
+os.chdir(xml_folder)
+logger.info("Targer Folder = %s",os.getcwd())
+logger.info("Looking for XML files...")
+cpt_files = 0
+for xml_file in os.listdir(xml_folder):
+    #For each xml file, create a thread
+    if xml_file.endswith(".xml"):
+        current = thread_download(xml_file)
+        threads.append(current)
+        current.start()
 
         
-
+for t in threads:   
+    t.join()
 
 os.chdir(source_folder)
 #We got back to the folder of the script
