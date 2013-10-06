@@ -11,7 +11,7 @@ from HTMLParser import HTMLParser
 import logging
 from execo import logger
 
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 #FYI Balise signalant une chanson

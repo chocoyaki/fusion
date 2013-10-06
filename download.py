@@ -125,11 +125,11 @@ class thread_download(Thread):
                     if nb_res > 0:
                         logger.info("Win!")
                         setAsDownloaded(child)
-                        logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
-                        logger.info("Download: %d / Current: %d / Total:%d",dl_cpt,current_cpt,total)
                         dl_cpt +=1                     
                     else:
                         logger.info("Loss!")
+                    logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
+                    logger.info("Download: %d / Current: %d / Total:%d",dl_cpt,current_cpt,total)
             tree.write(self.xml_file)
         return
 
@@ -160,7 +160,7 @@ for xml_file in os.listdir(xml_folder):
   
 for t in threads:   
     t.join()
-    logger.info("A thread is done!")
+    logger.debug("A thread is done!")
 
 os.chdir(source_folder)
 #We got back to the folder of the script
