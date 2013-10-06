@@ -86,7 +86,7 @@ class thread_download(Thread):
         try:
             os.mkdir(xml_folder)
         except OSError:
-            logger.info("The folder %s already exists",xml_folder)
+            logger.debug("The folder %s already exists",xml_folder)
         if root.tag == genre:
             logger.debug("%s.xml is a valid file!",genre)
             #cpt_files +=1
@@ -123,13 +123,13 @@ class thread_download(Thread):
                         nb_res = -1
                         raise
                     if nb_res > 0:
-                        logger.info("Win!")
+                        logger.debug("[%s] Found a link for the song! %s - %s",genre,artist,titre)
                         setAsDownloaded(child)
+                        logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
                         dl_cpt +=1                     
                     else:
-                        logger.info("Loss!")
-                    logger.info("Song has been tag download as : %s / %s - %s",hasBeenDownloaded(child),artist,titre)
-                    logger.info("Download: %d / Current: %d / Total:%d",dl_cpt,current_cpt,total)
+                        logger.debug("[%s] Could not find any link for the song! %s - %s",genre,artist,titre)
+                    logger.info("[%s] Download: %d / Current: %d / Total:%d",genre,dl_cpt,current_cpt,total)
             tree.write(self.xml_file)
         return
 

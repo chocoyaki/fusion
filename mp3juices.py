@@ -53,7 +53,7 @@ class search(HTMLParser):
         title = self.title
         destination_path = self.destination_path 
         
-        logger.info("Starting the "+site+" parser")
+        logger.debug("Starting the "+site+" parser")
         logger.debug("Retrieving the song informations")
         logger.debug("ARTIST = %s",artist)
         logger.debug("TITLE = %s",title)
@@ -63,10 +63,10 @@ class search(HTMLParser):
         song = song.lower()
         artist = artist.lower()
         title = title.lower()
-        logger.info("SONG = "+song)
+        logger.debug("SONG = "+song)
         logger.debug("REQUEST = "+request)
         
-        logger.info("Performing the request...")
+        logger.debug("Performing the request...")
         conn = httplib.HTTPConnection(site)
         conn.request("GET", "/search/"+request)
         r1 = conn.getresponse()
@@ -84,7 +84,7 @@ class search(HTMLParser):
         conn.close()
         
         #Nombre de résultats
-        logger.info("Number of results = %r",parser.nb_results)
+        logger.debug("Number of results = %r",parser.nb_results)
         return parser.nb_results
     
     def handle_starttag(self, tag, attrs):
